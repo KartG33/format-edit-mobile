@@ -93,8 +93,18 @@
       transition: all .2s ease;
     }
 
-    /* Схлопнутое состояние — когда фокус в полях замены */
-    body.rp-focused .hdr {
+    /* Фокус в редакторе — скрываем всё кроме счётчика */
+    body.ed-focused .hdr-top,
+    body.ed-focused .fmt-cats,
+    body.ed-focused .fmt-btns,
+    body.ed-focused .sym-bar {
+      display: none !important;
+    }
+
+    body.ed-focused .hdr {
+      padding-top: calc(6px + var(--safe-t));
+      padding-bottom: 6px;
+    }
       padding-top: calc(6px + var(--safe-t));
       padding-bottom: 6px;
       gap: 6px;
@@ -2377,6 +2387,11 @@
     rpFrom.addEventListener('blur',  onRpBlur);
     rpTo.addEventListener('focus',   onRpFocus);
     rpTo.addEventListener('blur',    onRpBlur);
+
+    // Фокус в редакторе — скрываем панели
+    const ed2 = document.getElementById('ed');
+    ed2.addEventListener('focus', () => document.body.classList.add('ed-focused'));
+    ed2.addEventListener('blur',  () => document.body.classList.remove('ed-focused'));
   </script>
 </body>
 
