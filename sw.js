@@ -1,12 +1,12 @@
-const CACHE_NAME = 'e-dit-v3';
+const CACHE_NAME = 'e-dit-v4';
 const ASSETS = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icons/icon-16x16.png',
-  './icons/icon-32x32.png',
-  './icons/icon-192x192.png',
-  './icons/icon-512x512.png'
+  '/format-edit-mobile/',
+  '/format-edit-mobile/index.html',
+  '/format-edit-mobile/manifest.json',
+  '/format-edit-mobile/icons/icon-16x16.png',
+  '/format-edit-mobile/icons/icon-32x32.png',
+  '/format-edit-mobile/icons/icon-192x192.png',
+  '/format-edit-mobile/icons/icon-512x512.png'
 ];
 
 self.addEventListener('install', e => {
@@ -25,16 +25,14 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
-// Network-first: сначала сеть, при ошибке — кеш
 self.addEventListener('fetch', e => {
   e.respondWith(
     fetch(e.request)
-      .then(response => {
-        // Кладём свежую версию в кеш
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
-        return response;
-      })
-      .catch(() => caches.match(e.request))
+    .then(response => {
+      const clone = response.clone();
+      caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+      return response;
+    })
+    .catch(() => caches.match(e.request))
   );
 });
