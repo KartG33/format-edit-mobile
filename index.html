@@ -90,6 +90,26 @@
       display: flex;
       flex-direction: column;
       gap: 9px;
+      transition: all .2s ease;
+    }
+
+    /* Схлопнутое состояние — когда фокус в полях замены */
+    body.rp-focused .hdr {
+      padding-top: calc(6px + var(--safe-t));
+      padding-bottom: 6px;
+      gap: 6px;
+    }
+
+    body.rp-focused .hdr-top {
+      display: none;
+    }
+
+    body.rp-focused .fmt-cats {
+      display: none;
+    }
+
+    body.rp-focused .fmt-btns {
+      display: none;
     }
 
     .hdr-top {
@@ -1117,13 +1137,11 @@
 
   <!-- HEADER -->
   <div class="hdr">
+    <!-- Счётчик — всегда виден, не скрывается при фокусе в замене -->
+    <div class="stats-row" id="stats-row" style="flex-shrink:0;">
+      <div class="chip"><b id="sc">0</b></div>
+    </div>
     <div class="hdr-top">
-      <div class="stats-row" id="stats-row">
-        <div class="chip"><b id="sc">0</b> сим</div>
-        <div class="chip"><b id="sw">0</b> сл</div>
-        <div class="chip" id="sent-chip" style="display:none"><b id="ss">0</b> пред</div>
-        <div class="chip" id="para-chip" style="display:none"><b id="sp">0</b> абз</div>
-      </div>
       <button class="install-btn" id="install-btn" aria-label="Установить приложение">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
@@ -1454,25 +1472,7 @@
 
     function updateStats() {
       const t = ed.value;
-      const words = t.trim() ? t.trim().split(/\s+/).length : 0;
       document.getElementById('sc').textContent = t.length;
-      document.getElementById('sw').textContent = words;
-
-      // Предложения и абзацы — показываем при достаточном объёме текста
-      const sentChip = document.getElementById('sent-chip');
-      const paraChip = document.getElementById('para-chip');
-      if (t.trim().length > 20) {
-        const sentMatches = t.match(/[.!?…]+[\s\n]/g) || [];
-        const sentences = sentMatches.length + 1;
-        const paragraphs = t.split(/\n\s*\n/).filter(p => p.trim().length > 0).length || 1;
-        document.getElementById('ss').textContent = sentences;
-        document.getElementById('sp').textContent = paragraphs;
-        sentChip.style.display = '';
-        paraChip.style.display = paragraphs > 1 ? '' : 'none';
-      } else {
-        sentChip.style.display = 'none';
-        paraChip.style.display = 'none';
-      }
 
       // diff pill — показываем разницу с originalText
       const diff = originalText.length - t.length;
@@ -2352,10 +2352,31 @@
     ed.value = '';
     renderFmtBtns();
     render();
-    renderSavedList(); // sidebar desktop
-    // Авто-имя в sidebar
+    renderSavedList();
     const _sbn = document.getElementById('nm-name');
     if (_sbn) _sbn.value = autoName();
+
+    // ── Схлопывание верхних панелей при фокусе в полях замены ──
+    const rpFrom = document.getElementById('rp-from');
+    const rpTo   = document.getElementById('rp-to');
+
+    function onRpFocus() {
+      document.body.classList.add('rp-focused');
+    }
+    function onRpBlur() {
+      // Небольшая задержка — чтобы не мигало при переходе между полями
+      setTimeout(() => {
+        const active = document.activeElement;
+        if (active !== rpFrom && active !== rpTo) {
+          document.body.classList.remove('rp-focused');
+        }
+      }, 100);
+    }
+
+    rpFrom.addEventListener('focus', onRpFocus);
+    rpFrom.addEventListener('blur',  onRpBlur);
+    rpTo.addEventListener('focus',   onRpFocus);
+    rpTo.addEventListener('blur',    onRpBlur);
   </script>
 </body>
 
